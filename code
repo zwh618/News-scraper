@@ -1,0 +1,83 @@
+import requests
+from bs4 import BeautifulSoup
+
+# Function to scrape ChinaDaily
+def scrape_chinadaily():
+    url = "https://www.chinadaily.com.cn/"
+    res = requests.get(url)
+    res.encoding = 'utf-8'
+    
+    # Parse the HTML content
+    soup = BeautifulSoup(res.text, 'html.parser')
+    news_list = []
+
+    # Select the news headlines and links (based on structure of the website)
+    for a in soup.select("div.tw3_01_2 li a"):
+        title = a.text.strip()  # Extract title
+        href = a.get("href")    # Extract URL
+        if title and href:
+            if not href.startswith("http"):
+                href = "https://www.chinadaily.com.cn" + href  # Make sure the URL is complete
+            news_list.append({"title": title, "url": href})
+    
+    return news_list
+
+# Function to scrape People.com.cn
+def scrape_people():
+    url = "http://www.people.com.cn/"
+    res = requests.get(url)
+    res.encoding = 'utf-8'
+    
+    # Parse the HTML content
+    soup = BeautifulSoup(res.text, 'html.parser')
+    news_list = []
+
+    # Select the news headlines and links (based on structure of the website)
+    for a in soup.find_all("a", href=True):
+        title = a.text.strip()  # Extract title
+        href = a['href']        # Extract URL
+        if title and href:
+            if not href.startswith("http"):
+                href = "http://www.people.com.cn" + href  # Make sure the URL is complete
+            news_list.append({"title": title, "url": href})
+    
+    return news_list
+
+# Function to scrape Xinhuanet
+def scrape_xinhuanet():
+    url = "http://www.xinhuanet.com/"
+    res = requests.get(url)
+    res.encoding = 'utf-8'
+    
+    # Parse the HTML content
+    soup = BeautifulSoup(res.text, 'html.parser')
+    news_list = []
+
+    # Select the news headlines and links (based on structure of the website)
+    for a in soup.select("div.index_headlines ul li a"):
+        title = a.text.strip()  # Extract title
+        href = a.get("href")    # Extract URL
+        if title and href:
+            if not href.startswith("http"):
+                href = "http://www.xinhuanet.com" + href  # Make sure the URL is complete
+            news_list.append({"title": title, "url": href})
+    
+    return news_list
+
+# Scrape all three websites
+chinadaily_news = scrape_chinadaily()
+people_news = scrape_people()
+xinhuanet_news = scrape_xinhuanet()
+
+# Print results
+print("ChinaDaily News:")
+for news in chinadaily_news:
+    print(f"Title: {news['title']} - URL: {news['url']}")
+
+print("\nPeople.com.cn News:")
+for news in people_news:
+    print(f"Title: {news['title']} - URL: {news['url']}")
+
+print("\nXinhuanet News:")
+for news in xinhuanet_news:
+    print(f"Title: {news['title']} - URL: {news['url']}")
